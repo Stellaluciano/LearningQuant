@@ -1,0 +1,8 @@
+seed: 42
+dataset: market
+backtest:
+  initial_capital: 100000
+  frequency: daily
+ml:
+  model_type: sklearn
+  target: target
