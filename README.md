@@ -66,6 +66,22 @@ curl -X POST "http://localhost:8000/run_train?dataset_name=example_market&model_
 curl "http://localhost:8000/runs/<run_id>"
 ```
 
+
+## Backtest configuration
+
+`learnquant/config/default.yaml` drives backtest behavior end-to-end via `/run_backtest` and `/run_train`:
+
+- `backtest.initial_capital`: starting equity.
+- `backtest.frequency`: annualization basis (`minute`, `hour`, `daily`, `weekly`, `monthly`). If omitted, metrics infer frequency from timestamps.
+- `backtest.fees`: transaction fee per unit turnover (`abs(position_t-position_{t-1}) * fee`).
+- `backtest.slippage.fixed_bps`: fixed slippage in basis points applied on turnover.
+- `backtest.slippage.vol_multiplier`: dynamic slippage coefficient multiplied by rolling volatility.
+- `backtest.risk.max_position`: hard cap for long/short position magnitude.
+- `backtest.risk.stop_loss`, `take_profit`: optional single-trade exit thresholds.
+- `backtest.risk.max_drawdown`: optional strategy-level kill switch.
+
+Backtest artifacts are always written to `learnquant/runs/<run_id>/` as `metrics.json`, `trade_logs.csv`, `equity_curve.csv`, and `report.html`.
+
 ## Example assets
 - Example CSV: `learnquant/data/raw/example_market.csv`
 - Example strategy: `learnquant/examples/strategy.py`

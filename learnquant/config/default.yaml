@@ -3,6 +3,15 @@ dataset: market
 backtest:
   initial_capital: 100000
   frequency: daily
+  fees: 0.0005
+  slippage:
+    fixed_bps: 1.0
+    vol_multiplier: 0.0
+  risk:
+    max_position: 1.0
+    stop_loss: null
+    take_profit: null
+    max_drawdown: null
 ml:
   model_type: sklearn
   target: target
