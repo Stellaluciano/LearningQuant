@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
 import polars as pl
 import yaml
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -64,7 +63,8 @@ def run_backtest(dataset_name: str = "market"):
     config = load_default_config()
     run_id, run_dir = run_manager.create_run({**config, "task": "backtest", "dataset": dataset_name})
 
-    bt = backtest_engine.run(features)
+    bt_config = config.get("backtest", {})
+    bt = backtest_engine.run(features, config=bt_config)
     bt_metrics = bt["metrics"]
     bt["trades"].to_csv(run_dir / "trade_logs.csv", index=False)
     bt["equity_curve"].to_csv(run_dir / "equity_curve.csv", index=False)
@@ -89,7 +89,12 @@ def run_train(dataset_name: str = "market", model_type: str = "sklearn"):
     result = train(features, model_type=model_type)
     registry.register(run_dir, result.model, {"ml": result.metrics})
 
-    bt = backtest_engine.run(features)
+    bt_config = config.get("backtest", {})
+    bt = backtest_engine.run(features, config=bt_config)
+    bt["trades"].to_csv(run_dir / "trade_logs.csv", index=False)
+    bt["equity_curve"].to_csv(run_dir / "equity_curve.csv", index=False)
+    run_manager.log_metrics(run_dir, {"ml": result.metrics, "backtest": bt["metrics"]})
+
     report = generate_report(
         run_dir,
         bt["equity_curve"],
